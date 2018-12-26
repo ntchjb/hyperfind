@@ -2,15 +2,30 @@
   "name": "hyperfind",
   "version": "0.0.1",
   "description": "Simple text searching in hyper using xterm search addons.",
-  "main": "src/index.js",
+  "main": "dist/main.js",
   "repository": "https://github.com/ntchjb/hyperfind.git",
   "author": "ntchjb",
   "license": "MIT",
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack --mode=production",
+    "dev": "webpack --watch --mode=development"
+  },
   "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.2.3",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/preset-react": "^7.0.0",
+    "babel-eslint": "^10.0.1",
+    "babel-loader": "^8.0.4",
     "eslint": "^5.11.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.2",
-    "eslint-plugin-react": "^7.11.1"
+    "eslint-plugin-react": "^7.11.1",
+    "webpack": "^4.28.2",
+    "webpack-cli": "^3.1.2"
+  },
+  "dependencies": {
+    "prop-types": "^15.6.2"
   }
 }
