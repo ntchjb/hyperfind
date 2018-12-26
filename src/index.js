@@ -1,5 +1,5 @@
-const { decorateTerm } = require('./components.jsx');
-const { decorateMenu } = require('./menu');
+import decorateMenu from './menu';
+import decorateTerm from './components';
 
-exports.decorateTerm = decorateTerm;
-exports.decorateMenu = decorateMenu;
+export { decorateMenu };
+export { decorateTerm };

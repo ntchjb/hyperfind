@@ -2,13 +2,13 @@
   "name": "hyperfind",
   "version": "0.0.1",
   "description": "Simple text searching in hyper using xterm search addons.",
-  "main": "dist/main.js",
+  "main": "dist/hyperfind.js",
   "repository": "https://github.com/ntchjb/hyperfind.git",
   "author": "ntchjb",
   "license": "MIT",
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --mode=production",
-    "dev": "webpack --watch --mode=development"
+    "dev": "webpack --watch --mode=development --devtool source-map"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",

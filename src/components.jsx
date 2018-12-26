@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-exports.decorateTerm = (Term, { React }) => class extends React.Component {
+export default (Term, { React }) => class extends React.Component {
   static propTypes = {
     onDecorated: PropTypes.func,
   };
@@ -42,6 +42,7 @@ exports.decorateTerm = (Term, { React }) => class extends React.Component {
           <button type="button">❮</button>
           <button type="button">❯</button>
         </div>
+        <Term {...this.props} />
       </React.Fragment>
     );
   }

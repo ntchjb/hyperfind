@@ -1,14 +1,15 @@
-exports.decorateMenu = (menu) => {
+export default (menu) => {
   // menu label is different on mac
-  const menuLabel = 'Edit';
+  const menuLabel = 'EDIT';
 
-  return menu.map((menuCategory) => {
-    if (menuCategory.label !== menuLabel) {
-      return menuCategory;
+  Object.keys(menu).forEach((key) => {
+    const menuCategory = menu[key];
+    let { label } = menuCategory;
+    if (label !== undefined) {
+      label = label.toUpperCase();
     }
-    return [
-      ...menuCategory,
-      {
+    if (label === menuLabel) {
+      menuCategory.submenu = menuCategory.submenu.concat({
         type: 'separator',
       },
       {
@@ -19,9 +20,8 @@ exports.decorateMenu = (menu) => {
             label: 'Find...',
             accelerator: 'CmdOrCtrl+F',
             click(item, focusedWindow) {
-              // on macOS, menu item can clicked without or minized window
               if (focusedWindow) {
-                focusedWindow.rpc.emit('hyperfind:find');
+                focusedWindow.rpc.emit('hyperfind:find', { focusedWindow });
               }
             },
           },
@@ -29,9 +29,8 @@ exports.decorateMenu = (menu) => {
             label: 'Find Next',
             accelerator: 'CmdOrCtrl+G',
             click(item, focusedWindow) {
-              // on macOS, menu item can clicked without or minized window
               if (focusedWindow) {
-                focusedWindow.rpc.emit('hyperfind:findnext');
+                focusedWindow.rpc.emit('hyperfind:findnext', { focusedWindow });
               }
             },
           },
@@ -39,14 +38,14 @@ exports.decorateMenu = (menu) => {
             label: 'Find Previous',
             accelerator: 'CmdOrCtrl+Shift+G',
             click(item, focusedWindow) {
-              // on macOS, menu item can clicked without or minized window
               if (focusedWindow) {
-                focusedWindow.rpc.emit('hyperfind:findprev');
+                focusedWindow.rpc.emit('hyperfind:findprev', { focusedWindow });
               }
             },
           },
         ],
-      },
-    ];
+      });
+    }
   });
+  return menu;
 };
