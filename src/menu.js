@@ -1,7 +1,6 @@
 export default (menu) => {
   // menu label is different on mac
   const menuLabel = 'EDIT';
-
   Object.keys(menu).forEach((key) => {
     const menuCategory = menu[key];
     let { label } = menuCategory;
@@ -21,7 +20,7 @@ export default (menu) => {
             accelerator: 'CmdOrCtrl+F',
             click(item, focusedWindow) {
               if (focusedWindow) {
-                focusedWindow.rpc.emit('hyperfind:find', { focusedWindow });
+                focusedWindow.rpc.emit('hyperfind:find');
               }
             },
           },
@@ -30,7 +29,7 @@ export default (menu) => {
             accelerator: 'CmdOrCtrl+G',
             click(item, focusedWindow) {
               if (focusedWindow) {
-                focusedWindow.rpc.emit('hyperfind:findnext', { focusedWindow });
+                focusedWindow.rpc.emit('hyperfind:findnext');
               }
             },
           },
@@ -39,7 +38,7 @@ export default (menu) => {
             accelerator: 'CmdOrCtrl+Shift+G',
             click(item, focusedWindow) {
               if (focusedWindow) {
-                focusedWindow.rpc.emit('hyperfind:findprev', { focusedWindow });
+                focusedWindow.rpc.emit('hyperfind:findprev');
               }
             },
           },
