@@ -23,6 +23,7 @@ export const decorateTerm = (Term, { React }) => class extends React.Component {
     this.handleOnBlur = this.handleOnBlur.bind(this);
     this.handleOnKeyDown = this.handleOnKeyDown.bind(this);
     this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleSelectAll = this.handleSelectAll.bind(this);
   }
 
   componentDidMount() {
@@ -39,8 +40,18 @@ export const decorateTerm = (Term, { React }) => class extends React.Component {
 
   onDecorated(term) {
     this.term = term;
+    this.term.handleSelectAll = this.handleSelectAll;
     const { onDecorated } = this.props;
     if (onDecorated) onDecorated(term);
+  }
+
+  handleSelectAll = () => {
+    const { focused } = this.state;
+    if (focused === true) {
+      this.hyperFindInput.select();
+    } else {
+      this.term.selectAll();
+    }
   }
 
   handleOnFocus = (event) => {
@@ -54,8 +65,6 @@ export const decorateTerm = (Term, { React }) => class extends React.Component {
 
   handleOnKeyDown = (event) => {
     /* If press enter, then search next */
-    // const isMac = process.platform === 'darwin';
-    // const cmdOrCtrl = isMac ? event.metaKey : event.ctrlKey;
     const { uid, focussedSessionUid } = this.props;
     if (uid === focussedSessionUid) {
       if (event.key === 'Enter' && event.shiftKey) {

@@ -17,7 +17,7 @@ export default (menu) => {
         submenu: [
           {
             label: 'Find...',
-            accelerator: 'CmdOrCtrl+F',
+            accelerator: 'CommandOrControl+F',
             click(item, focusedWindow) {
               if (focusedWindow) {
                 focusedWindow.rpc.emit('hyperfind:find');
@@ -26,7 +26,7 @@ export default (menu) => {
           },
           {
             label: 'Find Next',
-            accelerator: 'CmdOrCtrl+G',
+            accelerator: 'CommandOrControl+G',
             click(item, focusedWindow) {
               if (focusedWindow) {
                 focusedWindow.rpc.emit('hyperfind:findnext');
@@ -35,7 +35,7 @@ export default (menu) => {
           },
           {
             label: 'Find Previous',
-            accelerator: 'CmdOrCtrl+Shift+G',
+            accelerator: 'CommandOrControl+Shift+G',
             click(item, focusedWindow) {
               if (focusedWindow) {
                 focusedWindow.rpc.emit('hyperfind:findprev');
