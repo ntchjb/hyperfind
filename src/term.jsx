@@ -1,4 +1,6 @@
 import PropTypes from 'prop-types';
+import { setSessionUidAtInput, setActiveSession } from './actions';
+
 
 export const decorateTerm = (Term, { React }) => class extends React.Component {
   static propTypes = {
@@ -55,6 +57,9 @@ export const decorateTerm = (Term, { React }) => class extends React.Component {
   }
 
   handleOnFocus = (event) => {
+    const { uid } = this.props;
+    /* global store */
+    store.dispatch(setSessionUidAtInput(uid));
     event.target.select();
     this.setState({ focused: true });
   }
@@ -63,19 +68,25 @@ export const decorateTerm = (Term, { React }) => class extends React.Component {
     this.setState({ focused: false });
   }
 
+  checkFocusToTerm = (uid, focussedSessionUid) => {
+    if (uid !== focussedSessionUid) {
+      /* global store */
+      store.dispatch(setActiveSession(uid));
+    }
+  }
+
   handleOnKeyDown = (event) => {
     /* If press enter, then search next */
     const { uid, focussedSessionUid } = this.props;
-    if (uid === focussedSessionUid) {
-      if (event.key === 'Enter' && event.shiftKey) {
-        this.handleFindPrev();
-      } else if (event.key === 'Enter') {
-        this.handleFindNext();
-      } else if (event.key === 'Escape') {
-        /* Hide finding dialog */
-        const { term } = this.props;
-        if (term) term.focus();
-      }
+    if (event.key === 'Enter' && event.shiftKey) {
+      this.handleFindPrev();
+    } else if (event.key === 'Enter') {
+      this.handleFindNext();
+    } else if (event.key === 'Escape') {
+      this.checkFocusToTerm(uid, focussedSessionUid);
+      /* Hide finding dialog */
+      const { term } = this.props;
+      if (term) term.focus();
     }
   }
 
@@ -123,6 +134,7 @@ export const decorateTerm = (Term, { React }) => class extends React.Component {
 export const mapTermsState = (state, map) => (
   Object.assign(map, {
     focussedSessionUid: state.sessions.activeUid,
+    hyperfindActiveSessionUid: state.ui.hyperfindActiveSessionUid,
     hyperFindToggleInput: state.ui.hyperFindToggleInput,
     hyperFindInputText: state.ui.hyperFindInputText,
     hyperFindLastUserFind: state.ui.hyperFindLastUserFind,
@@ -133,12 +145,15 @@ export const mapTermsState = (state, map) => (
 export const passProps = (uid, parentProps, props) => (
   Object.assign(props, {
     focussedSessionUid: parentProps.focussedSessionUid,
+    hyperfindActiveSessionUid: parentProps.hyperfindActiveSessionUid,
     hyperFindToggleInput: parentProps.hyperFindToggleInput,
     hyperFindInputText: parentProps.hyperFindInputText,
     hyperFindLastUserFind: parentProps.hyperFindLastUserFind,
     hyperFindCurrentRow: parentProps.hyperFindCurrentRow,
   })
 );
+
+export const mapTermsDispatch = (dispatch, map) => map;
 
 export const getTermGroupProps = passProps;
 export const getTermProps = passProps;
