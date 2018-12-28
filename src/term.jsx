@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
+import * as Search from './lib/search/search';
 import { setSessionUidAtInput, setActiveSession } from './actions';
-
 
 export const decorateTerm = (Term, { React }) => class extends React.Component {
   static propTypes = {
@@ -15,12 +15,15 @@ export const decorateTerm = (Term, { React }) => class extends React.Component {
     super(props, context);
     this.state = {
       focused: false,
+      inputValue: '',
+      hidden: false,
     };
     this.hyperFindInput = null;
     this.onDecorated = this.onDecorated.bind(this);
     this.handleFindNext = this.handleFindNext.bind(this);
     this.handleFindPrev = this.handleFindPrev.bind(this);
-    this.handleToggleInput = this.handleToggleInput.bind(this);
+    this.handleShowInput = this.handleShowInput.bind(this);
+    this.handleHideInput = this.handleHideInput.bind(this);
     this.handleOnFocus = this.handleOnFocus.bind(this);
     this.handleOnBlur = this.handleOnBlur.bind(this);
     this.handleOnKeyDown = this.handleOnKeyDown.bind(this);
@@ -29,13 +32,15 @@ export const decorateTerm = (Term, { React }) => class extends React.Component {
   }
 
   componentDidMount() {
-    window.rpc.on('hyperfind:find', this.handleToggleInput);
+    window.rpc.on('hyperfind:find', this.handleShowInput);
+    window.rpc.on('hyperfind:hidefind', this.handleHideInput);
     window.rpc.on('hyperfind:findnext', this.handleFindNext);
     window.rpc.on('hyperfind:findprev', this.handleFindPrev);
   }
 
   componentWillUnmount() {
-    window.rpc.removeListener('hyperfind:find', this.handleToggleInput);
+    window.rpc.removeListener('hyperfind:find', this.handleShowInput);
+    window.rpc.removeListener('hyperfind:hidefind', this.handleHideInput);
     window.rpc.removeListener('hyperfind:findnext', this.handleFindNext);
     window.rpc.removeListener('hyperfind:findprev', this.handleFindPrev);
   }
@@ -64,7 +69,7 @@ export const decorateTerm = (Term, { React }) => class extends React.Component {
     this.setState({ focused: true });
   }
 
-  handleOnBlur = (event) => {
+  handleOnBlur = () => {
     this.setState({ focused: false });
   }
 
@@ -80,11 +85,16 @@ export const decorateTerm = (Term, { React }) => class extends React.Component {
     const { uid, focussedSessionUid } = this.props;
     if (event.key === 'Enter' && event.shiftKey) {
       this.handleFindPrev();
+      event.target.select();
     } else if (event.key === 'Enter') {
       this.handleFindNext();
+      event.target.select();
     } else if (event.key === 'Escape') {
       this.checkFocusToTerm(uid, focussedSessionUid);
       /* Hide finding dialog */
+      this.setState({
+        hidden: false,
+      });
       const { term } = this.props;
       if (term) term.focus();
     }
@@ -94,37 +104,63 @@ export const decorateTerm = (Term, { React }) => class extends React.Component {
     /* If text changed, reset search and search next again */
     const { uid, focussedSessionUid } = this.props;
     if (uid === focussedSessionUid) {
-      /* Reset finding */
-      /* Start finding */
+      this.setState({
+        inputValue: event.target.value,
+      });
     }
   }
 
-  handleToggleInput = () => {
+  handleShowInput = () => {
     /* Display/Hide find dialog */
-    this.hyperFindInput.focus();
-    console.log('Hyperfind dialog toggled');
+    const { uid, focussedSessionUid } = this.props;
+    if (uid === focussedSessionUid) {
+      this.setState({
+        hidden: true,
+      });
+      this.hyperFindInput.focus();
+    }
+  }
+
+  handleHideInput = () => {
+    /* Display/Hide find dialog */
+    const { uid, focussedSessionUid } = this.props;
+    if (uid === focussedSessionUid) {
+      this.setState({
+        hidden: false,
+      });
+    }
   }
 
   handleFindNext = () => {
-    /* Do find next operation */
-    console.log('find next');
+    const { inputValue } = this.state;
+    if (inputValue.length > 0) {
+      /* Do find next operation */
+      Search.findNext(this.term.term, inputValue);
+    }
   }
 
   handleFindPrev = () => {
-    /* Do find previous operation */
-    console.log('find previous');
+    const { inputValue } = this.state;
+    if (inputValue.length > 0) {
+      /* Do find previous operation */
+      Search.findPrevious(this.term.term, inputValue);
+    }
   }
 
   render() {
+    const { inputValue, hidden } = this.state;
     return (
       <React.Fragment>
-        <div className="hyperfind-wrapper">
-          <div className="hyperfind-box invert">
-            <input ref={(input) => { this.hyperFindInput = input; }} id="hyperfind-input" className="invert" placeholder="Find" onFocus={this.handleOnFocus} onBlur={this.handleOnBlur} onKeyDown={this.handleOnKeyDown} onChange={this.handleOnChange} />
-            <button className="hyperfind-btn invert" type="button" onClick={this.handleFindPrev}>❮</button>
-            <button className="hyperfind-btn invert" type="button" onClick={this.handleFindNext}>❯</button>
-          </div>
-        </div>
+        { hidden
+          ? (
+            <div className="hyperfind-wrapper">
+              <div className="hyperfind-box invert">
+                <input ref={(input) => { this.hyperFindInput = input; }} value={inputValue} id="hyperfind-input" className="invert" placeholder="Find" onFocus={this.handleOnFocus} onBlur={this.handleOnBlur} onKeyDown={this.handleOnKeyDown} onChange={this.handleOnChange} />
+                <button className="hyperfind-btn invert" type="button" onClick={this.handleFindPrev}>❮</button>
+                <button className="hyperfind-btn invert" type="button" onClick={this.handleFindNext}>❯</button>
+              </div>
+            </div>
+          ) : null }
         <Term {...this.props} onDecorated={this.onDecorated} />
       </React.Fragment>
     );
@@ -135,10 +171,6 @@ export const mapTermsState = (state, map) => (
   Object.assign(map, {
     focussedSessionUid: state.sessions.activeUid,
     hyperfindActiveSessionUid: state.ui.hyperfindActiveSessionUid,
-    hyperFindToggleInput: state.ui.hyperFindToggleInput,
-    hyperFindInputText: state.ui.hyperFindInputText,
-    hyperFindLastUserFind: state.ui.hyperFindLastUserFind,
-    hyperFindCurrentRow: state.ui.hyperFindCurrentRow,
   })
 );
 
@@ -146,10 +178,6 @@ export const passProps = (uid, parentProps, props) => (
   Object.assign(props, {
     focussedSessionUid: parentProps.focussedSessionUid,
     hyperfindActiveSessionUid: parentProps.hyperfindActiveSessionUid,
-    hyperFindToggleInput: parentProps.hyperFindToggleInput,
-    hyperFindInputText: parentProps.hyperFindInputText,
-    hyperFindLastUserFind: parentProps.hyperFindLastUserFind,
-    hyperFindCurrentRow: parentProps.hyperFindCurrentRow,
   })
 );
 

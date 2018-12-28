@@ -35,6 +35,7 @@ export default config => Object.assign(
       .hyperfind-btn {
         background: rgba(0,0,0,0);
         border: none;
+        border-radius: 10px;
         color: rgba(255,255,255,0.75);
         height: 100%;        
         outline: none;

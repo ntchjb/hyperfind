@@ -42,6 +42,15 @@ export default (menu) => {
               }
             },
           },
+          {
+            label: 'Hide Find Bar',
+            accelerator: 'CommandOrControl+Shift+F',
+            click(item, focusedWindow) {
+              if (focusedWindow) {
+                focusedWindow.rpc.emit('hyperfind:hidefind');
+              }
+            },
+          },
         ],
       });
     }
